@@ -16,7 +16,9 @@ const StudyPlan = ({selectedstudy})=>{
     month[10] = "November";
     month[11] = "December";
 
-    const GenerateDays = ()=>{     
+    const GenerateDays = ()=>{ 
+        console.log(selectedstudy.studyPeriod)  
+        selectedstudy.studyPeriod = 15  
        let d = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
        let stdyPeriod = selectedstudy.studyPeriod
        let schedule = []
@@ -37,7 +39,8 @@ const StudyPlan = ({selectedstudy})=>{
         <div>
             <p>Your Schedule:</p>
             <p>"{selectedstudy.studydesc}" on below days:</p>
-            {daysComponent.map((d,i)=>{
+            {console.log(daysComponent)}
+            { daysComponent.map((d,i)=>{
                 return<p key={i}> {month[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</p>
             })}
         </div>

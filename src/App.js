@@ -17,7 +17,7 @@ class App extends Component {
       mode:"StartStudy"
 
       //Test Data
-      //mode: "StudyPlan",
+      //mode: "RecordStudyData",
       //selectedstudy:{studyname:"HighFibre", studydesc:"Eat more Veggies", studyPeriod:"15" }
     }
   }
