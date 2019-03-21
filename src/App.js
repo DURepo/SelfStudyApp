@@ -6,7 +6,8 @@ import ConfirmStudy from './containers/ConfirmStudy';
 import StartStudy from './containers/StartStudy';
 import SelectStudyPeriod from './containers/SelectStudyPeriod';
 import StudyPlan from './containers/StudyPlan';
-import RecordStudyData from './containers/RecordStudyData';
+import RecordDataMaster from './containers/RecordDataMaster';
+import Analysis from './containers/Analysis';
 
 class App extends Component {
 
@@ -14,12 +15,25 @@ class App extends Component {
     super()
     this.state={
       selectedstudy: {}, //properties: studyname, studydesc, studyPeriod
-      mode:"StartStudy"
+      studyPeriod:0,
+      mode:"StartStudy",
+      studyData: [],
+      userstudyID:4
 
       //Test Data
-      //mode: "RecordStudyData",
+      //mode: "PerformAnalysis"
       //selectedstudy:{studyname:"HighFibre", studydesc:"Eat more Veggies", studyPeriod:"15" }
     }
+  }
+
+  componentDidMount(){
+    fetch('http://localhost:3001/studyData/'+this.state.userstudyID,{
+      method:'get',
+      headers:{'Content-Type':'application/json'}
+    })
+    .then(response => response.json())
+    .then(records=> { this.setState({studyData:records})  
+    })
   }
 
   const = onselect = (event)=>{    
@@ -33,6 +47,16 @@ class App extends Component {
   }
 
   confirmStudybtnsubmit =(event) =>{
+    fetch('http://localhost:3001/createuserStudy',{
+      method: 'post',
+      headers:{'Content-Type': 'application/json'},
+      body: JSON.stringify({
+          studyID: 1,
+          userID: 1,
+          studyPeriodinDays: this.state.studyPeriod
+      })
+  })
+  .then(resp => console.log("fetch: " + resp))
     this.setState({mode:"StudyPlan"})
     this.selectedMode();    
   }
@@ -50,20 +74,27 @@ class App extends Component {
 
   StudyPeriodSubmitbtnClick=(event)=>{
     
-    this.setState({selectedstudy:{studyPeriod:event.target.value},
+    this.setState({studyPeriod:event.target.value,
                    mode:"SelectStudy"})
     this.selectedMode();
   }
 
   recordStudyDatabtnClick = ()=>{
-    this.setState({mode:"RecordStudyData"})
+    this.setState({mode:"RecordDataMaster"})
+    this.selectedMode();
+  }
+
+  performAnalysisbtnClick =() => {
+    this.setState({mode:"PerformAnalysis"})
     this.selectedMode();
   }
 
   selectedMode = ()=>{
     switch (this.state.mode) {
       case "StartStudy":
-        return <StartStudy StartStudyClick={this.startStudybtnClick} recordStudyDataClick={this.recordStudyDatabtnClick}/>
+        return <StartStudy StartStudyClick={this.startStudybtnClick} 
+                          recordStudyDataClick={this.recordStudyDatabtnClick}
+                          performAnalysisClick = {this.performAnalysisbtnClick}/>
       case "SelectStudyPeriod":
         return <SelectStudyPeriod StudyPeriodSubmit={this.StudyPeriodSubmitbtnClick} />
       case "SelectStudy":
@@ -72,14 +103,16 @@ class App extends Component {
         return <ConfirmStudy selectedstudy={this.state.selectedstudy} ConfirmStudysubmit={this.confirmStudybtnsubmit} CancelStudy={this.confirmStudybtncancel} />  
       case "StudyPlan":
         return <StudyPlan selectedstudy={this.state.selectedstudy}/>
-      case "RecordStudyData":
-        return <RecordStudyData />
+      case "RecordDataMaster":
+        return <RecordDataMaster studyData={this.state.studyData} />
+      case "PerformAnalysis":
+        return <Analysis userstudyID={this.state.userstudyID} />
       default:
         break;
     }
   }
-  
 
+  
   render() {
   
     return (

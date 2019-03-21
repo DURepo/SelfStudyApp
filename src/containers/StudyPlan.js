@@ -33,13 +33,11 @@ const StudyPlan = ({selectedstudy})=>{
 
     const daysComponent = GenerateDays()
 
-
-
     return(
         <div>
             <p>Your Schedule:</p>
             <p>"{selectedstudy.studydesc}" on below days:</p>
-            {console.log(daysComponent)}
+            
             { daysComponent.map((d,i)=>{
                 return<p key={i}> {month[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</p>
             })}

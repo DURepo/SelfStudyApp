@@ -22,7 +22,7 @@ Foreign Key fk_user(user_id) References users(user_id)
 )
 
 create table studyDataRecords(
-record_id INT Auto_increment,
+record_id INT Auto_increment Primary Key,
 userStudy_id INT not null,
 date DATE,
 inputSample INT,
@@ -37,7 +37,7 @@ description Varchar(100)
 
 
 create table studyResults(
-id INT Auto_Increment,
+id INT Auto_Increment Primary Key,
 result_id INT Not Null,
 Foreign Key fk_result(result_id) References result(result_id)
 )

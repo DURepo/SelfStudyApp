@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mwu = require('mann-whitney-utest');
 const knex = require('knex');
+const cors = require('cors');
 
 const db = knex({
     client: 'mysql',
@@ -10,10 +11,12 @@ const db = knex({
       user : 'root',
       password : 'kec123!',
       database : 'selfstudydb'
-    }
+    },
+    useNullAsDefault: true
   });
 
 const app = express();
+app.use(cors());
 
 app.use(bodyParser.json());
 
@@ -74,7 +77,10 @@ const studyData =[{
 }]
 
 app.post('/createuserStudy',(req,res)=>{
-    const {studyID,userID,studyPeriodinDays} = req.body;    
+    const {studyID,userID,studyPeriodinDays} = req.body;  
+    let userstudyID = -1
+    let schedule =[]
+    let s = [{userStudy_id: 1, date: new Date()}]
     db('userstudies')
     .returning('*')
     .insert({
@@ -82,9 +88,44 @@ app.post('/createuserStudy',(req,res)=>{
         user_id: userID,
         start_date: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
         studyPeriodInDays: studyPeriodinDays
-    }).then(s=>res.json(s[0]))  
+    })
+    .then(s => {userstudyID = s[0]                  
+                schedule = generateStudyPlan(userstudyID,studyPeriodinDays)                
+                updateSchedule(schedule)
+                res.json(schedule)
+    })    
+    .catch(function(err){
+        console.error(err);
+    })
+        
     
 })
+
+generateStudyPlan=(userstudyID,studyPeriod)=>{
+    
+       let d = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+       let stdyPeriod = studyPeriod
+       let schedule = []
+       let count = stdyPeriod/2;
+        let i=1
+       for(i; i<count; i ++){
+           let newEntry ={}
+           newEntry.userStudy_id = userstudyID;
+           d.setDate(d.getDate()+2)
+           newEntry.date = new Date(d) 
+         schedule.push(newEntry)
+       }       
+       return schedule
+    
+
+}
+
+updateSchedule = (s)=> {
+    db('studydatarecords')
+    .returning('*')
+    .insert(s)
+    .then(console.log)
+}
 
 app.post('/schedule',(req,res)=>{
     const {userStudyID, dates} = req.body
@@ -97,11 +138,106 @@ app.post('/schedule',(req,res)=>{
     res.json(modiData)
 })
 
-app.put('/recordStudy',(req,res)=>{
-    //{userstudyID:1, records:[{ID:1,  Date:"", input:"", output:""},{{ID:2, Date:"", input:"", output:""}}}
 
-    const {studyID, records} = req.body
+app.get('/studyData/:id', (req,res)=>{
+    const id = req.params.id
+    console.log(id)
+    db.select('*').from('studydatarecords').where({userStudy_id: id})
+    .then(records =>{
+        if(records.length){
+            res.json(records)
+        }else{
+            res.status(400).json('not found')
+        }
+    })
+
+    
 })
+
+
+
+app.put('/recordStudy',(req,res)=>{
+   const {RecordID,inputSample, outputSample} = req.body
+  
+   console.log("details: " + RecordID)
+   db('studydatarecords')
+   .where('record_id', '=',parseInt(RecordID))
+   .update({
+       inputSample: parseInt(inputSample),
+       outputSample: parseInt(outputSample)
+   })
+   .then(resp=> {   
+    res.json(resp)
+                })
+    .catch(function(err){
+                    console.error(err);
+          })
+
+})
+
+
+app.get('/Analysis/:id', (req, res)=>{
+    const id = req.params.id;
+    let result =-1;
+
+    db.select('*')
+        .from('studydatarecords')
+        .where({userStudy_id:id, 'inputSample': null})
+        .orWhere({userStudy_id:id, 'outputSample': null})
+        .then(response=>{
+            if(!response.length){
+                //GetRecordsAndRunTest(id)
+                db.select('inputSample', 'outputSample')
+            .from('studydatarecords')
+            .where({userStudy_id:id})
+            .then(response=>{ 
+            res.json( RunTest(response))
+        })
+        }
+            
+        })
+        .catch(function(err){
+            console.error(err)
+        })
+
+
+})
+
+
+
+GetRecordsAndRunTest = (id) =>{   
+        db.select('inputSample', 'outputSample')
+        .from('studydatarecords')
+        .where({userStudy_id:id})
+        .then(response=>{ 
+            return RunTest(response)
+        })
+}
+
+
+
+RunTest = (records) =>{
+    let result
+    const inputArray = records.map((ele, i)=>{
+        return ele.inputSample 
+    })
+    const outputArray = records.map(ele => {return ele.outputSample})
+    //Format of  samples for mwu test [ [30, 14, 6], [12, 15, 16] ];
+    const finalArray = []
+    finalArray.push(inputArray)
+    finalArray.push(outputArray)
+    let u = mwu.test(finalArray);
+    if (mwu.significant(u, finalArray)) {
+        console.log('The data is significant!');
+        result= 1
+    } else {
+        console.log('The data is not significant.');
+        restult = 2
+    }
+
+    return result;
+}
+
 
 app.post('/runTest:userStudyId',(req,res)=>{
     //call DB to get input and output
@@ -109,9 +245,9 @@ app.post('/runTest:userStudyId',(req,res)=>{
     let result;
     const records = [{input:1,output:50},{input:3,output:95},{input:2,output:80},{input:3,output:90}]
     const inputArray = records.map((ele, i)=>{
-        return ele.input 
+        return ele.inputSample 
     })
-    const outputArray = records.map(ele => {return ele.output})
+    const outputArray = records.map(ele => {return ele.outputSample})
     //Format of  samples for mwu test [ [30, 14, 6], [12, 15, 16] ];
    
     const finalArray = []
