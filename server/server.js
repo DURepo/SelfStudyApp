@@ -32,50 +32,8 @@ app.listen(3001,()=>{
     console.log('App is running on port 3001')
 })
 
-const studies=[{
-    ID:1,
-    Name: "HighFibre",
-    Description:"Eat more Vetables"
-}]
-const user =
-[{  ID:1,
-    Name: "John"
-}]
 
-const userStudy=[{
-    ID:1,
-    StudyID:1,
-    UserID:1,
-    StudyStartDate:"2019/03/18",
-    StudyPeriodinDays:15
-}]
-
-const studyData =[{
-    ID:1,
-    StudyID:1,
-    RecordDate:"2019/03/20",
-    inputSample:2,  //3:High Veggies, 2: Medium Veggies, 1: Low Veggies
-    ouputSample:80 // range(0,100) 0:low quality of sleep, 100 High quality of sleep
-},
-{ID:2,
-    StudyID:1,
-    RecordDate:"2019/03/22",
-    inputSample:3,  
-    ouputSample:90 
-},
-{ID:3,
-    StudyID:1,
-    RecordDate:"2019/03/24",
-    inputSample:1,  
-    ouputSample:50 
-},
-{ID:4,
-    StudyID:1,
-    RecordDate:"2019/03/24",
-    inputSample:3,  
-    ouputSample:95 
-}]
-
+//creates a new study for a user
 app.post('/createuserStudy',(req,res)=>{
     const {studyID,userID,studyPeriodinDays} = req.body;  
     let userstudyID = -1
@@ -101,6 +59,7 @@ app.post('/createuserStudy',(req,res)=>{
     
 })
 
+//for a given period returns of the days on which user has to perform study
 generateStudyPlan=(userstudyID,studyPeriod)=>{
     
        let d = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
@@ -127,18 +86,7 @@ updateSchedule = (s)=> {
     .then(console.log)
 }
 
-app.post('/schedule',(req,res)=>{
-    const {userStudyID, dates} = req.body
-    const modiData = dates.map(d => {
-        let temp = {}
-        temp.userStudyID = userStudyID
-        temp.date= d
-        return temp
-        })
-    res.json(modiData)
-})
-
-
+//Returns study data for a given studyid
 app.get('/studyData/:id', (req,res)=>{
     const id = req.params.id
     console.log(id)
@@ -154,8 +102,7 @@ app.get('/studyData/:id', (req,res)=>{
     
 })
 
-
-
+//updates the inputsample and outputSamle for a given day
 app.put('/recordStudy',(req,res)=>{
    const {RecordID,inputSample, outputSample} = req.body
   
@@ -175,7 +122,7 @@ app.put('/recordStudy',(req,res)=>{
 
 })
 
-
+//For a given user study id, checks if data is complete, if complete runs test if not returns
 app.get('/Analysis/:id', (req, res)=>{
     const id = req.params.id;
     let result =-1;
@@ -203,8 +150,7 @@ app.get('/Analysis/:id', (req, res)=>{
 
 })
 
-
-
+//Gets data for given study ID and runs test
 GetRecordsAndRunTest = (id) =>{   
         db.select('inputSample', 'outputSample')
         .from('studydatarecords')
@@ -214,8 +160,7 @@ GetRecordsAndRunTest = (id) =>{
         })
 }
 
-
-
+//Runs mann-whitney-utest on given records
 RunTest = (records) =>{
     let result
     const inputArray = records.map((ele, i)=>{
@@ -237,49 +182,3 @@ RunTest = (records) =>{
 
     return result;
 }
-
-
-app.post('/runTest:userStudyId',(req,res)=>{
-    //call DB to get input and output
-    //records:[{input:"", output:""},{{input:"", output:""}}}
-    let result;
-    const records = [{input:1,output:50},{input:3,output:95},{input:2,output:80},{input:3,output:90}]
-    const inputArray = records.map((ele, i)=>{
-        return ele.inputSample 
-    })
-    const outputArray = records.map(ele => {return ele.outputSample})
-    //Format of  samples for mwu test [ [30, 14, 6], [12, 15, 16] ];
-   
-    const finalArray = []
-    finalArray.push(inputArray)
-    finalArray.push(outputArray)    
-
-    var u = mwu.test(finalArray);
-
-    if (mwu.significant(u, finalArray)) {
-        console.log('The data is significant!');
-        result= 1
-    } else {
-        console.log('The data is not significant.');
-        restult = 0
-    }
-    
-    res.send('ran')
-
-})
-
-/*
-
-/createStudy --> POST = success/fail
-
-/record  --> POST = success/fail
-
-/record --> GET = StudyData
-
-/record --> PUT = success/fail
-
-/RunStudy/:studyid --> GET = studyResult 
-    //runs ManW u test, sends result and saves results copy DB 
-
-
-*/

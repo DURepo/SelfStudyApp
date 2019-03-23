@@ -18,7 +18,7 @@ class App extends Component {
       studyPeriod:0,
       mode:"StartStudy",
       studyData: [],
-      userstudyID:4
+      userstudyID:5
 
       //Test Data
       //mode: "PerformAnalysis"
@@ -102,7 +102,7 @@ class App extends Component {
       case "ConfirmStudy":
         return <ConfirmStudy selectedstudy={this.state.selectedstudy} ConfirmStudysubmit={this.confirmStudybtnsubmit} CancelStudy={this.confirmStudybtncancel} />  
       case "StudyPlan":
-        return <StudyPlan selectedstudy={this.state.selectedstudy}/>
+        return <StudyPlan selectedstudy={this.state.selectedstudy} studyPeriod={this.state.studyPeriod}/>
       case "RecordDataMaster":
         return <RecordDataMaster studyData={this.state.studyData} />
       case "PerformAnalysis":

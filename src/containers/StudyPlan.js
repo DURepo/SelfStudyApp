@@ -1,6 +1,6 @@
 import React from 'react'
 
-const StudyPlan = ({selectedstudy})=>{
+const StudyPlan = ({selectedstudy, studyPeriod})=>{
 
     const month = [];
     month[0] = "January";
@@ -16,11 +16,11 @@ const StudyPlan = ({selectedstudy})=>{
     month[10] = "November";
     month[11] = "December";
 
-    const GenerateDays = ()=>{ 
-        console.log(selectedstudy.studyPeriod)  
-        selectedstudy.studyPeriod = 15  
+    const GenerateDays = ()=>{        
+       
        let d = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-       let stdyPeriod = selectedstudy.studyPeriod
+       
+       let stdyPeriod = studyPeriod
        let schedule = []
        let count = stdyPeriod/2;
         let i=1

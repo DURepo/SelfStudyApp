@@ -36,15 +36,11 @@ class RecordDataMaster extends Component{
 
     onOuputSampleChange = (event) =>{
         this.setState({outputSample: event.target.value})
-        console.log("out " + event.target.value)
+        
     }
 
-    onDayRecordSavebtnclick =()=>{
-       
-        console.log("input" + this.state.inputSample)
-        console.log("output" + this.state.outputSample)
-        console.log("rec_id" + this.state.RecordID)
-        console.log("this.state.outputSample type" + typeof(this.state.outputSample))
+    onDayRecordSavebtnclick =()=>{      
+        
         fetch('http://localhost:3001/recordStudy',{
             method:'put',
             headers:{'Content-type':'application/json'},
