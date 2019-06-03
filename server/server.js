@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const mwu = require('mann-whitney-utest');
 const knex = require('knex');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const db = knex({
     client: 'mysql',
@@ -24,9 +26,7 @@ db.select('*').from('result').then(data=> {
     console.log(data[0])
 });
 
-app.get('/',(req, res)=>{
-    res.send('this is working');
-})
+
 
 app.listen(3001,()=>{
     console.log('App is running on port 3001')
@@ -182,3 +182,51 @@ RunTest = (records) =>{
 
     return result;
 }
+
+
+database={
+    users: [
+        {
+            email:"john@gmail.com",
+            password:"john"
+            
+        },
+        {
+            email:"mary@gmail.com",
+            password:"mary"
+            
+        }
+    ]
+}
+
+app.post('/signin', (req, res)=>{
+    console.log("signin called")
+    if(req.body.email === database.users[0].email && req.body.password === database.users[0].password){
+        
+        res.status(200).json(users[0])
+    }
+    else{
+        res.json("error email not found")
+    }   
+})
+
+app.post('/register', (req, res) => {
+    const {email, password} = req.body
+
+    bcrypt.hash(password, saltRounds, function(err, hash) {
+        console.log(hash)
+        // Store hash in your password DB.
+      });
+
+    database.users.push({
+        email:email,
+        password:password
+    })
+
+    res.json(database.users[database.users.length-1].email)
+})
+
+app.get('/',(req, res)=>{
+    res.json(database.users)
+})
+

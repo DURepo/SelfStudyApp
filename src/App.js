@@ -8,6 +8,11 @@ import SelectStudyPeriod from './containers/SelectStudyPeriod';
 import StudyPlan from './containers/StudyPlan';
 import RecordDataMaster from './containers/RecordDataMaster';
 import Analysis from './containers/Analysis';
+import Signin from './signin';
+import Register from './register';
+import Navigation from './navigation';
+import 'tachyons';
+import Home from './containers/Home';
 
 class App extends Component {
 
@@ -18,7 +23,14 @@ class App extends Component {
       studyPeriod:0,
       mode:"StartStudy",
       studyData: [],
-      userstudyID:5
+      userstudyID:8,
+      route: 'home', //route to be 'signin'  
+      isSignedIn : false,
+      user:{
+        id:'',
+        name:'',
+        email:''
+      }
 
       //Test Data
       //mode: "PerformAnalysis"
@@ -26,7 +38,16 @@ class App extends Component {
     }
   }
 
+  loadUser = (data)=>{
+    this.setState({user:{
+        id:data.id,
+        name:data.name,
+        email:data.email}
+    })
+  }
+
   componentDidMount(){
+    console.log("did mount called")
     fetch('http://localhost:3001/studyData/'+this.state.userstudyID,{
       method:'get',
       headers:{'Content-Type':'application/json'}
@@ -112,14 +133,45 @@ class App extends Component {
     }
   }
 
+  onRouteChange = (route) => {
+    console.log("Routename: ", route);
+    if(route === 'signout'){
+      this.setState({isSignedIn:false})
+      this.setState({route: "signin"});
+    }
+    else if(route === 'home'){
+      console.log("seeting signin to true")
+      this.setState({isSignedIn:true})
+      this.setState({route: route});
+    }
+    else if(route=='register' || route==='signin'){
+      this.setState({isSignedIn:false, route:route})
+    }
+    
+  }
+
   
   render() {
   
     return (
       <div className="App">
+      
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />          
-          {this.selectedMode()}
+        <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange}/>
+        {this.state.route === 'home' 
+            ? <div>            
+            <img src={logo} className="App-logo" alt="logo" />          
+            <Home />
+            {/* {this.selectedMode()}  */}
+            </div>             
+            : (this.state.route === 'signin' 
+              ? <Signin loadUser={this.loadUser} onRouteChange = {this.onRouteChange}/> 
+              : <Register loadUser={this.loadUser} onRouteChange = {this.onRouteChange}/> 
+
+            )
+             }
+                   
+          
         </header>
       </div>
     );
