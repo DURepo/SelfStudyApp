@@ -1,9 +1,37 @@
+use selfstudydb;
+
 CREATE TABLE users (
  user_id INT Auto_Increment,
  name Varchar(255) NOT NULL,
+ email Varchar(255) NOT NULL,
+ password Varchar(255) NOT NULL,
 Primary Key (user_id)
-)
+);
 
+create table userstudies(
+study_id INT Auto_increment Primary Key,
+user_id INT not null,
+observed_input Varchar(50) not NULL,
+observed_output Varchar(50) not NULL,
+start_date DATE,
+studyPeriodInDays INT,
+isComplete Bool,
+result Varchar(50),
+Foreign Key fk_usr(user_id) References users(user_id)
+);
+
+create table studyobservation (
+    id INT Auto_Increment Primary Key,
+    study_id INT not NULL,
+    date DATE,
+    input_data INT,
+    output_data INT,
+    Foreign Key fk_stdy(study_id) References userstudies(study_id)
+    
+);
+
+
+-----------------------------old
 
 create table studies(
 study_id INT Auto_Increment primary key,

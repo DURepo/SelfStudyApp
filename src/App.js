@@ -27,7 +27,7 @@ class App extends Component {
       route: 'home', //route to be 'signin'  
       isSignedIn : false,
       user:{
-        id:'',
+        id: 4 ,//'',
         name:'',
         email:''
       }
@@ -40,10 +40,11 @@ class App extends Component {
 
   loadUser = (data)=>{
     this.setState({user:{
-        id:data.id,
+        id:data.user_id,
         name:data.name,
         email:data.email}
     })
+    
   }
 
   componentDidMount(){
@@ -161,7 +162,7 @@ class App extends Component {
         {this.state.route === 'home' 
             ? <div>            
             <img src={logo} className="App-logo" alt="logo" />          
-            <Home />
+            <Home userid= {this.state.user.id}/>
             {/* {this.selectedMode()}  */}
             </div>             
             : (this.state.route === 'signin' 
