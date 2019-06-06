@@ -14,7 +14,7 @@ class Home extends React.Component {
         }
     }
     
-    onStartnewStudyclick = (mode) =>{
+    updatemode = (mode) =>{
         this.setState({activeMode: mode})
        
     }
@@ -25,8 +25,8 @@ class Home extends React.Component {
             if(this.state.activeMode==="none"){
                 return(            
                 <div>                    
-                    <button type="submit" onClick={()=>this.onStartnewStudyclick("viewStudies")}>Select Existing Study</button>
-                    <button type="submit" userid={this.state.userid} onClick={()=>this.onStartnewStudyclick("createNewStudy")}>Start a New Study</button>
+                    <button type="submit" onClick={()=>this.updatemode("viewStudies")}>Select Existing Study</button>
+                    <button type="submit" userid={this.state.userid} onClick={()=>this.updatemode("createNewStudy")}>Start a New Study</button>
                 
                 </div>
                 )
@@ -43,7 +43,7 @@ class Home extends React.Component {
             else{
                 //view study
                 return(<div>
-                    <UserStudies />
+                    <UserStudies userid={this.state.userid} />
                 </div>)
             }
         

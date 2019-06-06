@@ -1,56 +1,103 @@
 import React from "react";
 import StudyResult from "./StudyResult";
 import RecordAnalyseStudy from "./RecordAnalyseStudy";
+import RecordStudyData from "../RecordStudyData";
 
 
 class UserStudies extends React.Component{
     constructor(props){
-        super();
+        super(props);
         this.state={
+            userid: props.userid,
             route:'',
             selectedStudy:{},
-            studies: [
-                {id:1,
-                studyinput:"veg",
-                studyoutput:"sleep",
-                duration:30,
-                analysisComplete:true
-                },
-                {
-                    id:2,
-                studyinput:"veg",
-                studyoutput:"sleep",
-                duration:10,
-                analysisComplete: false
-                }
-            ]
+            studyDates:{},
+            studies: [],
+            result:0
         }
     }
 
-    submitbtnOnClick = (studyID) =>{
+    componentDidMount(){
+        console.log("did mount called")
+        fetch('http://localhost:3001/studies/'+this.state.userid,{
+            method:'get',
+            headers:{'Content-Type':'application/json'}
+        })
+        .then(response=> response.json())
+        .then(records=> {console.log("records:,", records)
+        this.setState({studies: records})}
+        )        
+        
+    }
+
+    studyselected = (studyID) =>{
         //check is analysis complete, if yes redirect to results page
             //if no, redirect to complete study and perfrom ananlysis page
-        let s = this.state.studies.find(item => item.id === studyID)
+        let s = this.state.studies.find(item => item.study_id === studyID)        
         this.state.selectedStudy = s
-       if(s.analysisComplete){
-           console.log("TRUE")
-            this.setState({route:"recordAnalyseStudy"})
-       }
-         
-       else {
-        console.log("FALSE")
-        this.setState({route:"studyResult"})
-       }
+
+        if(!(s.isAnalysisComplete===1)){
+            fetch('http://localhost:3001/studyDataDates/'+ studyID, {
+            method:'get',
+            headers:{'Content-Type':'application/json'}
+            })
+            .then(response=>response.json())
+            .then(records=> {console.log('RECS:',records)
+            this.setState({studyDates: records})
+            console.log('l:',records.length)
+            console.log('isan:',s.isAnalysisComplete)
+            
+            
+
+            if(records.length>0 && s.isAnalysisComplete === 0){
+                console.log('DATEs:',this.state.studyDates)
+                this.setState({route:"recordStudy"})
+            }
+            else{
+                
+                this.setState({route:"analyseStudy"})
+            }          
+            
+            })
+        }
+        else
+        {
+            
+            this.setState({route:"studyResult", result:s.result})   
+            console.log( "In US", s)         
+        }
+       
         
 
     }
+
+    loadresult=()=>{
+        fetch('http://localhost:3001/loadResult/'+this.state.selectedStudy.id,{
+            method:'get',
+            headers:{'Content-Type':'application/json'} 
+        })
+        .then(Response=> Response.json())
+        .then(r => {this.setState({result:r})})
+    }
     
+    runAnalysisbtnclick = () =>{
+        fetch('http://localhost:3001/Analysis/'+this.state.selectedStudy.id,{
+        method:'get',
+        headers:{'Content-Type':'application/json'}
+        })
+        .then(
+            Response => Response.json())
+        .then(r=> {this.setState({result:r})
+            this.setState({route:"studyResult"})  }  
+            ) 
+    
+    }
 
     render(){
         
         const tablecomponent = this.state.studies.map((s,i) =>
         {
-            return (<button type="submit" key={s.id} onClick={()=>this.submitbtnOnClick(s.id)} >Impact of {s.studyinput} on {s.studyoutput} for {s.duration} Days.</button>)
+            return (<button type="submit" key={s.study_id} onClick={()=>this.studyselected(s.study_id)} >Impact of {s.observed_input} on {s.observed_output} for {s.studyPeriodInDays} Days.</button>)
         })
 
         return(
@@ -58,9 +105,15 @@ class UserStudies extends React.Component{
                 {this.state.route===""
                 ? <div><h1>Studies (Hypotheses) that you experimented, select one </h1>
                 {tablecomponent}</div>
-                :(this.state.route === 'recordAnalyseStudy'
-                ? <RecordAnalyseStudy />
-                : <StudyResult/>
+                :(this.state.route === 'recordStudy'
+                ? <RecordAnalyseStudy selectedStudy={this.state.selectedStudy} studyDates={this.state.studyDates} />
+                : (this.state.route==='analyseStudy'
+                   ? <div> 
+                       <lable>Data is Complete, Run Analysis?</lable>
+                       <button type="submit" onClick={()=>this.runAnalysisbtnclick()} > Yes </button>
+                        </div>
+                   : <StudyResult selectedStudy={this.state.selectedStudy} studyResult={this.state.result}/>
+                )
                 )
         }
             </div>

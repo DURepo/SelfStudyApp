@@ -1,6 +1,6 @@
 import React from 'react'
 
-const StudyPlan = ({selectedstudy, studyPeriod})=>{
+const StudyPlan = ({studyPeriod})=>{
 
     const month = [];
     month[0] = "January";
@@ -36,7 +36,6 @@ const StudyPlan = ({selectedstudy, studyPeriod})=>{
     return(
         <div>
             <p>Your Schedule:</p>
-            <p>"{selectedstudy.studydesc}" on below days:</p>
             
             { daysComponent.map((d,i)=>{
                 return<p key={i}> {month[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</p>

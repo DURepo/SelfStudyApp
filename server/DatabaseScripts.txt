@@ -1,5 +1,10 @@
 use selfstudydb;
 
+drop table if exists maxinputRecomendedDays;
+drop table if exists studyobservation;
+drop table if exists userstudies;
+
+
 CREATE TABLE users (
  user_id INT Auto_Increment,
  name Varchar(255) NOT NULL,
@@ -15,7 +20,8 @@ observed_input Varchar(50) not NULL,
 observed_output Varchar(50) not NULL,
 start_date DATE,
 studyPeriodInDays INT,
-isComplete Bool,
+isDataComplete Bool Default false,
+isAnalysisComplete Bool Default false,
 result Varchar(50),
 Foreign Key fk_usr(user_id) References users(user_id)
 );
@@ -30,6 +36,13 @@ create table studyobservation (
     
 );
 
+
+CREATE TABLE maxinputRecomendedDays(
+    id INT Auto_Increment Primary Key,
+    study_id INT not NULL,
+    date DATE,
+    Foreign Key fk_stdy1(study_id) References userstudies(study_id)
+)
 
 -----------------------------old
 

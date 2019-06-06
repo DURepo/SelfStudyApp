@@ -4,18 +4,24 @@ class RecordStudyData extends Component{
     
 
     render(){
-    const {studyData, dateSelected} = this.props;    
-        
+    const {studyDates, dateSelectedbtnClick} = this.props;    
 
-    const tablecomponent = studyData.map((data,i)=>
-        {return ( <button type="submit" value={data.record_id} key={data.record_id} style={{margin: "2px"}}
-                             onClick={dateSelected}> 
+    console.log("STUDYDATEs: ", studyDates)
+    
+    if(studyDates){
+    const tablecomponent = studyDates.map((data,i)=>
+        {return ( <button type="submit" value={data.id} key={data.id} style={{margin: "2px"}}
+                             onClick={dateSelectedbtnClick}> 
                             {data.date}</button>) })
         return(
             <div>            
             {tablecomponent}
             </div>
         )
+    }
+    else
+    {    return <div></div>
+    }
     }
 
 }

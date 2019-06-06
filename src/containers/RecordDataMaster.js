@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import RecordStudyData from "./RecordStudyData";
 import RecordEachDay from "./RecordEachDay";
 
+
 class RecordDataMaster extends Component{
     constructor(props){
         super(props);
@@ -13,13 +14,22 @@ class RecordDataMaster extends Component{
             RecordID:"",
             inputSample:"",
             outputSample:"",
-            studyData: props.studyData
+            studyData: props.studyData,
+            studyDates:props.studyDates
+            
+
         }
+        
         
     }
 
+    
+
     dateSelectedbtnClick = (event) =>{ 
-        const d = this.state.studyData.filter(ele => ele.record_id == event.target.value)
+        console.log("HERE: event val ", event.target.value)
+        console.log("HERE2: ", this.state.studyData)
+        console.log("HERE3: ", this.state.studyDates)
+        const d = this.state.studyDates.filter(ele => ele.id == event.target.value)
         
         this.setState({dateSelected:d[0].date,
                         RecordID:event.target.value,
@@ -56,13 +66,17 @@ class RecordDataMaster extends Component{
 
     }
 
+
+
     
     render(){ 
-        
+        const {studyData, studyDates} = this.props;
+                
         return(
             <div>
                 <h5>Select a Date to record Data</h5>
-                <RecordStudyData studyData={this.state.studyData} dateSelected={this.dateSelectedbtnClick}/>
+                
+                <RecordStudyData studyDates={studyDates} dateSelectedbtnClick={this.dateSelectedbtnClick}/>
                 {this.state.displayMode==="None" 
                 ? <div><p>{this.state.Displaymessage}</p></div>
                 : <div><RecordEachDay dateSelected={this.state.dateSelected} 

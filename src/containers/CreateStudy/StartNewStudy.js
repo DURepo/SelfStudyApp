@@ -1,5 +1,6 @@
 import React from "react";
 import Home from '../Home';
+import StudyPlan from '../StudyPlan';
 
 class StartnewStudy extends React.Component{
     constructor(props){
@@ -89,7 +90,8 @@ class StartnewStudy extends React.Component{
             case "studyCreated":
                 return(
                     <div>
-                        <p>Your Study has been created, update study Data on below days:----</p>
+                        <p>Your Study has been created. For better analysis maintain High value of "{this.state.studyinput}" on below listed days and low on other days:</p>
+                        <StudyPlan studyPeriod={this.state.studyduration}/>
                     </div>
                 )
             case "studyCanceled":

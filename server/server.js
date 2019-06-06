@@ -42,8 +42,7 @@ app.post('/createuserStudy',(req,res)=>{
     const observed_input = data.studyinput
     const observed_output = data.studyoutput
     const studyPeriodInDays = data.studyPeriodinDays
-    const start_date = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
-    const isComplete = false    
+    const start_date = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())       
     let schedule =[]
     //let s = [{userStudy_id: 1, date: new Date()}]
 
@@ -53,7 +52,6 @@ app.post('/createuserStudy',(req,res)=>{
     //         observed_input: observed_input,
     //         observed_output: observed_output,
     //         studyPeriodInDays: studyPeriodInDays,
-    //         isComplete: isComplete,
     //         start_date: start_date
     //     })
     //     .into('userstudies')
@@ -77,12 +75,13 @@ app.post('/createuserStudy',(req,res)=>{
           observed_input: observed_input,
           observed_output: observed_output,
           studyPeriodInDays: studyPeriodInDays,
-            isComplete: isComplete,
             start_date: start_date        
     })
     .then(result => {userstudyID = result[0]                  
-                schedule = generateStudyPlan(userstudyID,studyPeriodInDays)                
-                updateSchedule(schedule)
+                schedule = generateStudyPlan(userstudyID,studyPeriodInDays,2)                
+                updateMaxinputRecomendedDays(schedule)
+                allDates = generateStudyPlan(userstudyID,studyPeriodInDays,1) 
+                insertAllDatesForStudy(allDates)
                 console.log('SCHEDULE: ',schedule)
                 res.json(schedule)
     })    
@@ -94,7 +93,7 @@ app.post('/createuserStudy',(req,res)=>{
 })
 
 //for a given period returns of the days on which user has to perform study
-generateStudyPlan=(userstudyID,studyPeriod)=>{
+generateStudyPlan=(userstudyID,studyPeriod, datesDelta)=>{
     console.log("studyperiod: ", studyPeriod)
        let d = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
        let stdyPeriod = studyPeriod
@@ -104,7 +103,7 @@ generateStudyPlan=(userstudyID,studyPeriod)=>{
        for(i; i<count; i ++){
            let newEntry ={}
            newEntry.study_id = userstudyID;
-           d.setDate(d.getDate()+2)
+           d.setDate(d.getDate()+datesDelta)
            newEntry.date = new Date(d) 
          schedule.push(newEntry)
        }       
@@ -113,12 +112,21 @@ generateStudyPlan=(userstudyID,studyPeriod)=>{
 
 }
 
-updateSchedule = (s)=> {
-    db('studyobservation')
+updateMaxinputRecomendedDays = (s)=> {
+    db('maxinputrecomendeddays')
     .returning('*')
     .insert(s)
     .then(result => console.log('UPDATED schedule: ', result))
 }
+
+insertAllDatesForStudy = (s)=> {
+    db('studyobservation')
+    .returning('*')
+    .insert(s)
+    .then(result => console.log('UPDATED all dates: ', result))
+}
+
+
 
 //Returns study data for a given studyid
 app.get('/studyData/:id', (req,res)=>{
@@ -136,16 +144,54 @@ app.get('/studyData/:id', (req,res)=>{
     
 })
 
+app.get('/studyDataDates/:id',(req,res) => {
+    console.log('studyDataDates called')
+    const id = req.params.id
+    db.select('*').from('studyobservation').where({study_id: id}).whereNull('input_data')
+    .then(records => {
+        if(records.length){
+            console.log('IN DB: ', records)
+            res.json(records)
+        }else{
+            res.status(400).json({})
+        }
+    })
+
+})
+
+//get studies for a given userid
+app.get('/studies/:id',(req,res) => {
+
+    const id = req.params.id
+    db.select('*').from('userstudies').where({user_id: id})
+    .then(records =>{
+        if(records.length){
+            return res.json(records)
+        }else{
+            return res.status(400).json('not found')
+        }
+    })
+
+})
+
+app.get('/loadResult/:id',(req,res) => {
+    const id = req.params.id
+    db.select('result').from('userstudies').where({study_id:id})
+    .then(records=>{
+        res.json(records[0].result)
+    })
+})
+
 //updates the inputsample and outputSamle for a given day
 app.put('/recordStudy',(req,res)=>{
-   const {RecordID,inputSample, outputSample} = req.body
+   const {id,input_data, output_data} = req.body
   
-   console.log("details: " + RecordID)
-   db('studydatarecords')
-   .where('record_id', '=',parseInt(RecordID))
+   console.log("details: " + id)
+   db('studyobservation')
+   .where('id', '=',parseInt(id))
    .update({
-       inputSample: parseInt(inputSample),
-       outputSample: parseInt(outputSample)
+        input_data: parseInt(input_data),
+        output_data: parseInt(output_data)
    })
    .then(resp=> {   
     res.json(resp)
@@ -160,20 +206,22 @@ app.put('/recordStudy',(req,res)=>{
 app.get('/Analysis/:id', (req, res)=>{
     const id = req.params.id;
     let result =-1;
+    
 
     db.select('*')
-        .from('studydatarecords')
-        .where({userStudy_id:id, 'inputSample': null})
-        .orWhere({userStudy_id:id, 'outputSample': null})
+        .from('studyobservation')
+        .where({study_id:id, 'input_data': null})
+        .orWhere({study_id:id, 'output_data': null})
         .then(response=>{
             if(!response.length){
                 //GetRecordsAndRunTest(id)
-                db.select('inputSample', 'outputSample')
-            .from('studydatarecords')
-            .where({userStudy_id:id})
+                db.select('input_data', 'output_data')
+            .from('studyobservation')
+            .where({study_id:id})
             .then(response=>{ 
-            res.json( RunTest(response))
-        })
+            res.json( RunTest(id,response))
+            
+            })
         }
             
         })
@@ -195,26 +243,74 @@ GetRecordsAndRunTest = (id) =>{
 }
 
 //Runs mann-whitney-utest on given records
-RunTest = (records) =>{
+RunTest = (id,records) =>{
     let result
-    const inputArray = records.map((ele, i)=>{
-        return ele.inputSample 
-    })
-    const outputArray = records.map(ele => {return ele.outputSample})
-    //Format of  samples for mwu test [ [30, 14, 6], [12, 15, 16] ];
-    const finalArray = []
-    finalArray.push(inputArray)
-    finalArray.push(outputArray)
-    let u = mwu.test(finalArray);
-    if (mwu.significant(u, finalArray)) {
-        console.log('The data is significant!');
-        result= 1
-    } else {
-        console.log('The data is not significant.');
-        restult = 2
-    }
+    
+    const treatmentHigh = records.filter(e => e.input_data===1)
 
-    return result;
+    const treatmentHighArray = treatmentHigh.map((ele, i)=>{
+            return ele.output_data
+        })
+
+    const treatmentLow = records.filter(e => e.input_data===0)
+    
+    const treatmentLowArray = treatmentLow.map((ele, i)=>{
+        return ele.output_data
+    })
+
+    const finalArray = []
+    finalArray.push(treatmentHighArray)
+    finalArray.push(treatmentLowArray)
+
+    let u = mwu.test(finalArray);
+
+    if (mwu.significant(u, finalArray)) {
+            console.log('The data is significant!');            
+            result= 1
+            insertAnalysisResultinDB(id,result)
+        } else {
+            console.log('The data is not significant.');
+            restult = 2
+            insertAnalysisResultinDB(id,result)
+        }
+    
+        return result;
+        
+    // const inputArray = records.map((ele, i)=>{
+    //     return ele.inputSample 
+    // })
+    // const outputArray = records.map(ele => {return ele.outputSample})
+    // //Format of  samples for mwu test [ [30, 14, 6], [12, 15, 16] ];
+    // const finalArray = []
+    // finalArray.push(inputArray)
+    // finalArray.push(outputArray)
+    // let u = mwu.test(finalArray);
+    // if (mwu.significant(u, finalArray)) {
+    //     console.log('The data is significant!');
+    //     result= 1
+    // } else {
+    //     console.log('The data is not significant.');
+    //     restult = 2
+    // }
+
+    // return result;
+}
+
+insertAnalysisResultinDB = (id,result) =>{
+
+    db('userstudies')
+   .where('study_id', '=',parseInt(id))
+   .update({
+        isAnalysisComplete: 1,
+        result: parseInt(result)
+   })
+   .then(resp=> {   
+    console.log(resp)
+                })
+    .catch(function(err){
+                    console.error(err);
+          })
+    
 }
 
 
@@ -299,4 +395,5 @@ app.post('/register', (req, res) => {
 app.get('/',(req, res)=>{
     res.json(database.users)
 })
+
 

@@ -48,7 +48,7 @@ class App extends Component {
   }
 
   componentDidMount(){
-    console.log("did mount called")
+    
     fetch('http://localhost:3001/studyData/'+this.state.userstudyID,{
       method:'get',
       headers:{'Content-Type':'application/json'}
@@ -124,7 +124,7 @@ class App extends Component {
       case "ConfirmStudy":
         return <ConfirmStudy selectedstudy={this.state.selectedstudy} ConfirmStudysubmit={this.confirmStudybtnsubmit} CancelStudy={this.confirmStudybtncancel} />  
       case "StudyPlan":
-        return <StudyPlan selectedstudy={this.state.selectedstudy} studyPeriod={this.state.studyPeriod}/>
+        //return <StudyPlan selectedstudy={this.state.selectedstudy} studyPeriod={this.state.studyPeriod}/>
       case "RecordDataMaster":
         return <RecordDataMaster studyData={this.state.studyData} />
       case "PerformAnalysis":
