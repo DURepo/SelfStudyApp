@@ -26,7 +26,8 @@ class StudyResult extends React.Component{
             return(
                 <div>
                          <h4>Your Hypothesis is false</h4>
-                 </div>)
+                         <h5>There is a Not a significant impact of "{this.state.study.observed_input}"" on "{this.state.study.observed_output}"</h5>
+                </div>)
         } 
     }
 }

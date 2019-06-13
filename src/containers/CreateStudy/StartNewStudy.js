@@ -70,27 +70,30 @@ class StartnewStudy extends React.Component{
             case "duration":
                 return (<div>
                     <label>How long a study do you want to conduct</label>
-                    <select onChange={this.onDurationSelection}>
+                    <select style={{margin:"10px"}} onChange={this.onDurationSelection}>
                         <option value="">--select--</option>
                         <option value="15">15 Days</option>
                         <option value="30">30 Days</option>
                         <option value="45">45 Days</option>
                         <option value="60">60 Days</option>
                     </select>
+                    <p>{"\n"}</p>
                     <button type="submit" onClick={()=>this.updateDisplay("showHypothesis")}>Next</button>
                 </div>)
             case "showHypothesis":
                 return (
                     <div>
                         <p>Your Hypthosis is {this.state.studyinput} has impact on {this.state.studyoutput}</p>
-                        <button type="submit" onClick={()=>this.confirmStudysubmit()}>Yes Start My Study</button>
-                        <button type="cancel" onClick={()=>this.CancelStudy()}>Cancel, I changed My mind</button>
+                        <button style={{margin:"20px"}} type="submit" onClick={()=>this.confirmStudysubmit()}>Yes, Start My Study</button>
+                        <button style={{margin:"20px"}} type="cancel" onClick={()=>this.CancelStudy()}>Cancel, I changed My mind</button>
                     </div>
                 )
             case "studyCreated":
                 return(
                     <div>
-                        <p>Your Study has been created. For better analysis maintain High value of "{this.state.studyinput}" on below listed days and low on other days:</p>
+                        <p>Your Study has been created!!! </p>
+                        <p>{"\n"}</p>
+                        <p>For better analysis maintain High value of "{this.state.studyinput}" on below listed days and low on other days.</p>
                         <StudyPlan studyPeriod={this.state.studyduration}/>
                     </div>
                 )

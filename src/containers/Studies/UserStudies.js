@@ -44,6 +44,7 @@ class UserStudies extends React.Component{
             .then(response=>response.json())
             .then(records=> {console.log('RECS:',records)
             this.setState({studyDates: records})
+            console.log(studyID)
             console.log('l:',records.length)
             console.log('isan:',s.isAnalysisComplete)
             
@@ -82,7 +83,7 @@ class UserStudies extends React.Component{
     
     runAnalysisbtnclick = () =>{
         fetch('http://localhost:3001/Analysis/'+this.state.selectedStudy.id,{
-        method:'get',
+        method:'put',
         headers:{'Content-Type':'application/json'}
         })
         .then(
@@ -97,7 +98,7 @@ class UserStudies extends React.Component{
         
         const tablecomponent = this.state.studies.map((s,i) =>
         {
-            return (<button type="submit" key={s.study_id} onClick={()=>this.studyselected(s.study_id)} >Impact of {s.observed_input} on {s.observed_output} for {s.studyPeriodInDays} Days.</button>)
+            return (<div><button type="submit" key={s.study_id} onClick={()=>this.studyselected(s.study_id)} >Impact of {s.observed_input} on {s.observed_output} for {s.studyPeriodInDays} Days.</button> <p>{"\n"}</p> </div>)
         })
 
         return(

@@ -23,7 +23,7 @@ class RecordAnalyseStudy extends React.Component{
         return(
             
             <div>
-                <h1>RecordAnalyseStudy</h1>
+                <h1>Record And Analyse Study</h1>
                 
                 {this.state.currentstudy.isDataComplete===1
                 ?<div>

@@ -48,12 +48,21 @@ class register extends React.Component {
         const {onRouteChange} = this.props;
         return(
             <div>
-                <label >Name</label>
+                <div style={{display:"flex"}}> 
+                <label style={{margin:"5px 40px 5px 5px"}} >Name</label>
                 <input id="name" type="name" onChange={this.onNameChange} ></input>
-                <label >Email</label>
+                </div>
+                <p>{"\n"}</p>
+                <div style={{display:"flex"}}> 
+                <label style={{margin:"5px 45px 5px 5px"}}>Email</label>
                 <input id="email" type="email" onChange={this.onEmailChange} ></input>
-                <label >Password</label>
+                </div>
+                <p>{"\n"}</p>
+                <div style={{display:"flex"}}> 
+                <label style={{margin:"5px 5px 5px 5px"}} >Password</label>
                 <input id="password" type="password" onChange={this.onPasswordChange} ></input>
+                </div>
+                <p>{"\n"}</p>
                 <button type="submit" onClick={this.onSubmitRegister}>Register</button>
             </div>
 

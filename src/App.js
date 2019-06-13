@@ -24,13 +24,14 @@ class App extends Component {
       mode:"StartStudy",
       studyData: [],
       userstudyID:8,
-      route: 'home', //route to be 'signin'  
-      isSignedIn : false,
+      route: 'signin', //route to be 'signin'  
+      isSignedIn : false, //false,
       user:{
         id: 4 ,//'',
         name:'',
         email:''
-      }
+      },
+      key:0
 
       //Test Data
       //mode: "PerformAnalysis"
@@ -143,7 +144,10 @@ class App extends Component {
     else if(route === 'home'){
       console.log("seeting signin to true")
       this.setState({isSignedIn:true})
-      this.setState({route: route});
+      this.setState({route: route})
+      this.setState({ key: Math.random() });
+      console.log(this.state.key)
+      
     }
     else if(route=='register' || route==='signin'){
       this.setState({isSignedIn:false, route:route})
@@ -159,10 +163,10 @@ class App extends Component {
       
         <header className="App-header">
         <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange}/>
+        <img style={{width: "20%", height: "20%"}}  src={logo} className="App-logo" alt="logo" /> 
         {this.state.route === 'home' 
-            ? <div>            
-            <img src={logo} className="App-logo" alt="logo" />          
-            <Home userid= {this.state.user.id}/>
+            ? <div>         
+            <Home  key={this.state.key} userid= {this.state.user.id}/>
             {/* {this.selectedMode()}  */}
             </div>             
             : (this.state.route === 'signin' 

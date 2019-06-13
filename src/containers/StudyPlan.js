@@ -35,8 +35,7 @@ const StudyPlan = ({studyPeriod})=>{
 
     return(
         <div>
-            <p>Your Schedule:</p>
-            
+                        
             { daysComponent.map((d,i)=>{
                 return<p key={i}> {month[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</p>
             })}

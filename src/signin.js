@@ -50,10 +50,18 @@ class signin extends React.Component {
     
     return (
         <div>
-            <label >Email</label>
+            <div style={{display:"flex"}}> 
+            <label style={{margin:"5px 45px 5px 5px"}} >Email</label>            
             <input id="email" type="email" onChange={this.onEmailChange} ></input>
-            <label >Password</label>
+            </div>
+            <p>{"\n"}</p>
+            
+            <div style={{display:"flex"}}> 
+            <label style={{margin:"5px"}} >Password</label>
             <input id="password" type="password" onChange={this.onPasswordChange} ></input>
+            
+            </div>
+            <p>{"\n"}</p>
             <button type="submit" onClick={this.onSubmitSigin}>Sign in</button>
 
         </div>

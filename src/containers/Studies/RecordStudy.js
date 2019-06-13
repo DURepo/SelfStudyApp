@@ -3,10 +3,12 @@ import React from 'react'
 class RecordStudy  extends React.Component{
     constructor(props){
         super(props)
+
         this.state= {
             selectedinput : "",
             selectedoutput :"",
             studyDates: this.props.studyDates,
+            study: this.props.studyData,
             mode:"",
             displayMessage:"",
             displayDate:"",
@@ -57,7 +59,9 @@ class RecordStudy  extends React.Component{
         console.log('PROPS:',studyDates)
         const tablecomponent = studyDates.map((d,i)=>
         {
-            return (<button type="submit" value={d.id} onClick={()=>this.updatemode(d.date,d.id)} >{d.date}</button>)
+            let D = new Date(d.date)
+            let displayDate = D.toString().split('00')[0]
+        return (<button style={{margin:"2px"}} type="submit" key={d.id} value={d.id} onClick={()=>this.updatemode(displayDate,d.id)} >{displayDate}</button>)
         }       
         )
 
@@ -67,22 +71,28 @@ class RecordStudy  extends React.Component{
                 
                 {this.state.mode==="RecordDay"
                 ?<div>
-                    <lablel>On {this.state.displayDate} </lablel>                    
-                    <label>How was input</label>
+                    <label>On {this.state.displayDate}</label>
+                    <p>{"\n"}</p>                 
+                    <label>Rate {this.state.study.observed_input} as low or high</label>
                     <select onChange={this.onInputChange}>
                         <option>--select--</option>
                         <option value="1">High</option>
                         <option value="0">Low</option>
                     </select>
-                    <label>How would you rate output on scale of (0-100)</label>
+                    <p>{"\n"}</p>
+                    <label>Rate {this.state.study.observed_output} on scale of (0-100) (0: Low, 100 High) </label>
                     <input id="output" onChange={this.onOutputChange}></input>
+                    <p>{"\n"}</p>
                     <button type="submit" onClick={this.saveDaybtnclick} >Save</button>
+                    <p>{"\n"}</p>
                  </div>
                  :<div>
                      <label>{this.state.displayMessage}</label>
                  </div>
                 }
+                <div style={{margin:"5px"}}>
                 {tablecomponent}
+                </div>
                
             </div>
         )

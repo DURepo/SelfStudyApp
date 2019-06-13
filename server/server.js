@@ -98,7 +98,14 @@ generateStudyPlan=(userstudyID,studyPeriod, datesDelta)=>{
        let d = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
        let stdyPeriod = studyPeriod
        let schedule = []
-       let count = stdyPeriod/2;
+       let count =0
+       console.log("datesDelta: ", datesDelta===2)
+       if(datesDelta === 2){
+            count = stdyPeriod/2;
+       }
+       else{
+            count = stdyPeriod;
+       }
         let i=1
        for(i; i<count; i ++){
            let newEntry ={}
@@ -203,10 +210,10 @@ app.put('/recordStudy',(req,res)=>{
 })
 
 //For a given user study id, checks if data is complete, if complete runs test if not returns
-app.get('/Analysis/:id', (req, res)=>{
+app.put('/Analysis/:id', (req, res)=>{
     const id = req.params.id;
     let result =-1;
-    
+    console.log('STUDYID:',id)
 
     db.select('*')
         .from('studyobservation')
@@ -219,6 +226,8 @@ app.get('/Analysis/:id', (req, res)=>{
             .from('studyobservation')
             .where({study_id:id})
             .then(response=>{ 
+                console.log('studyDATA:', response)
+                
             res.json( RunTest(id,response))
             
             })
@@ -234,6 +243,7 @@ app.get('/Analysis/:id', (req, res)=>{
 
 //Gets data for given study ID and runs test
 GetRecordsAndRunTest = (id) =>{   
+    console.log(id)
         db.select('inputSample', 'outputSample')
         .from('studydatarecords')
         .where({userStudy_id:id})
@@ -245,22 +255,25 @@ GetRecordsAndRunTest = (id) =>{
 //Runs mann-whitney-utest on given records
 RunTest = (id,records) =>{
     let result
+    console.log("REcords:", records)
     
     const treatmentHigh = records.filter(e => e.input_data===1)
 
     const treatmentHighArray = treatmentHigh.map((ele, i)=>{
             return ele.output_data
         })
-
+    
     const treatmentLow = records.filter(e => e.input_data===0)
     
     const treatmentLowArray = treatmentLow.map((ele, i)=>{
         return ele.output_data
     })
 
+
     const finalArray = []
     finalArray.push(treatmentHighArray)
     finalArray.push(treatmentLowArray)
+    console.log(finalArray)
 
     let u = mwu.test(finalArray);
 
@@ -270,7 +283,7 @@ RunTest = (id,records) =>{
             insertAnalysisResultinDB(id,result)
         } else {
             console.log('The data is not significant.');
-            restult = 2
+            result = 2
             insertAnalysisResultinDB(id,result)
         }
     
