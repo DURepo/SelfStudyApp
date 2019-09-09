@@ -211,6 +211,7 @@ app.put('/recordStudy',(req,res)=>{
 
 //For a given user study id, checks if data is complete, if complete runs test if not returns
 app.put('/Analysis/:id', (req, res)=>{
+    console.log("REQ:", req)
     const id = req.params.id;
     let result =-1;
     console.log('STUDYID:',id)
@@ -221,16 +222,21 @@ app.put('/Analysis/:id', (req, res)=>{
         .orWhere({study_id:id, 'output_data': null})
         .then(response=>{
             if(!response.length){
+                console.log("IN IF loop")
+                console.log("studyID:", id)
                 //GetRecordsAndRunTest(id)
                 db.select('input_data', 'output_data')
             .from('studyobservation')
             .where({study_id:id})
-            .then(response=>{ 
-                console.log('studyDATA:', response)
+            .then(response2=>{ 
+                console.log('studyDATA:', response2)
                 
-            res.json( RunTest(id,response))
+            res.json( RunTest(id,response2))
             
             })
+        }
+        else{
+            console.log("IN ELSE loop")
         }
             
         })
@@ -354,9 +360,11 @@ app.post('/signin', (req, res)=>{
                 console.log('bcrypt validation: ',resp)
                 if(resp)
                 {
+                    
                     return db.select('*').from('users')
                     .where('email','=',req.body.email)
-                    .then(user => {                        
+                    .then(user => {   
+                                             
                         res.json(user[0])
                     })
                     .catch(e => res.status(400).json('unable to get user'))

@@ -5,7 +5,8 @@ class signin extends React.Component {
         super();
         this.state= {
             signinEmail: '',
-            signinPassword: ''
+            signinPassword: '',
+            ErrorDisplay : 'None'
         }
     }
     onEmailChange = (event) => {
@@ -27,20 +28,33 @@ class signin extends React.Component {
                password:  this.state.signinPassword
             })
         })
-        .then(response => response.json())
-        .then(user=>{
-            if(user){
-            this.props.loadUser(user);
-            this.props.onRouteChange('home');
-             
-            }
+        .then(response => 
+            
+            {if(!(response.status === 400)){
+                console.log('RESPONSE: ', response)
+                response.json()
+                .then(user=>{  
+                    console.log('USER:', user)          
+                    if(user){
+                    this.props.loadUser(user);
+                    this.props.onRouteChange('home');
+                     
+                    }
+                    else{
+                        console.log("failsigin")
+        
+                    }           
+                    
+                })
+                
+            }   
             else{
-                console.log("failsigin")
-
+                console.log('wrong response: ', response)
+                this.setState({ErrorDisplay:'inline'})
             }
-            
-            
-        })
+            }      
+            //response.json()
+            )       
        
         
     }
@@ -63,6 +77,11 @@ class signin extends React.Component {
             </div>
             <p>{"\n"}</p>
             <button type="submit" onClick={this.onSubmitSigin}>Sign in</button>
+            <div>
+            <p>{"\n"}</p>
+            <label style={{margin:"5px", backgroundColor : 'red', display: this.state.ErrorDisplay }} >Please enter Valid Credentials</label>
+            </div>
+
 
         </div>
 

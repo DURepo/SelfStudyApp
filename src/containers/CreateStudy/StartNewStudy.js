@@ -34,6 +34,7 @@ class StartnewStudy extends React.Component{
     }
 
     confirmStudysubmit = (event) =>{
+        console.log("CREATE STDY:", this.state.userid)
         // call server update study details
         fetch('http://localhost:3001/createuserStudy',{
       method: 'post',

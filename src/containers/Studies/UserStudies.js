@@ -82,7 +82,8 @@ class UserStudies extends React.Component{
     }
     
     runAnalysisbtnclick = () =>{
-        fetch('http://localhost:3001/Analysis/'+this.state.selectedStudy.id,{
+        console.log("STATE selectedstudy:", this.state.selectedStudy)
+        fetch('http://localhost:3001/Analysis/'+this.state.selectedStudy.study_id,{
         method:'put',
         headers:{'Content-Type':'application/json'}
         })
@@ -110,7 +111,7 @@ class UserStudies extends React.Component{
                 ? <RecordAnalyseStudy selectedStudy={this.state.selectedStudy} studyDates={this.state.studyDates} />
                 : (this.state.route==='analyseStudy'
                    ? <div> 
-                       <lable>Data is Complete, Run Analysis?</lable>
+                       <label>Data is Complete, Run Analysis?</label>
                        <button type="submit" onClick={()=>this.runAnalysisbtnclick()} > Yes </button>
                         </div>
                    : <StudyResult selectedStudy={this.state.selectedStudy} studyResult={this.state.result}/>
