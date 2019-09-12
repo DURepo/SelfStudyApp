@@ -47,9 +47,9 @@ class Home extends React.Component {
             else if(this.state.activeMode==="createNewStudy") {
                 return(
                     <div>
-                        <h1>Create New Study</h1>
+                        
                         {/* {this.createStudyDisplayPage()} */}
-                        <StartnewStudy userid={this.state.userid} />
+                        <StartnewStudy userid={this.state.userid} route={this.state.route} />
                     </div>
                 )
             }

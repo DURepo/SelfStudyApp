@@ -59,15 +59,16 @@ class App extends Component {
     })
   }
 
-  const = onselect = (event)=>{    
+  // const = onselect = (event)=>{    
     
-      let index = event.target.selectedIndex
-      this.setState({
-        selectedstudy: {studyname: event.target.value, 
-                          studydesc: event.target[index].text}, 
-        mode:"ConfirmStudy"})
-      this.selectedMode();
-  }
+  //     let index = event.target.selectedIndex
+  //     console.log('EVENT!!!! ',event)
+  //     this.setState({
+  //       selectedstudy: {studyname: event.target.value, 
+  //                         studydesc: event.target[index].text}, 
+  //       mode:"ConfirmStudy"})
+  //     this.selectedMode();
+  // }
 
   confirmStudybtnsubmit =(event) =>{
     fetch('http://localhost:3001/createuserStudy',{
@@ -113,7 +114,9 @@ class App extends Component {
   }
 
   selectedMode = ()=>{
+    console.log("MODE:", this.state.mode)
     switch (this.state.mode) {
+      
       case "StartStudy":
         return <StartStudy StartStudyClick={this.startStudybtnClick} 
                           recordStudyDataClick={this.recordStudyDatabtnClick}
@@ -121,6 +124,7 @@ class App extends Component {
       case "SelectStudyPeriod":
         return <SelectStudyPeriod StudyPeriodSubmit={this.StudyPeriodSubmitbtnClick} />
       case "SelectStudy":
+        
         return <SelectStudy onselect={onselect}/>
       case "ConfirmStudy":
         return <ConfirmStudy selectedstudy={this.state.selectedstudy} ConfirmStudysubmit={this.confirmStudybtnsubmit} CancelStudy={this.confirmStudybtncancel} />  

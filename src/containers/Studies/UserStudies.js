@@ -18,7 +18,7 @@ class UserStudies extends React.Component{
     }
 
     componentDidMount(){
-        console.log("did mount called")
+        console.log("did mount called, user ID: ",this.state.userid )
         fetch('http://localhost:3001/studies/'+this.state.userid,{
             method:'get',
             headers:{'Content-Type':'application/json'}
@@ -96,6 +96,7 @@ class UserStudies extends React.Component{
     }
 
     render(){
+        console.log('STATEEE : ', this.state)
         
         const tablecomponent = this.state.studies.map((s,i) =>
         {
